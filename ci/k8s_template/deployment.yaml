@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: service-{SERVICENAME}-deployment
+  namespace: devops
+spec:
+  containers:
+    - name: microservice-enid
+      image: {DOCKERIMAGEN}
+      ports:
+        - containerPort: 8080
+      env:
+        - name: DJANGO_RUNNING_MIGRATIONS
+          valueFrom:
+            secretKeyRef:
+              name: service-{SERVICENAME}-secret
+              key: DJANGO_RUNNING_MIGRATIONS
+        - name: DEBUG
+          valueFrom:
+            secretKeyRef:
+              name: service-{SERVICENAME}-secret
+              key: DEBUG
+  volumes:
+    - name: secret-volume
+      secret:
+        secretName: service-{SERVICENAME}-secret
+
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-{SERVICENAME}-service
+spec:
+  selector:
+    app: service-{SERVICENAME}-service
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
